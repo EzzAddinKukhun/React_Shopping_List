@@ -96,19 +96,19 @@ export default function Navbar() {
                 </thead>
                 <tbody>
                   {
-                    // data.map((entry) => {
-                    //   return (
-                    //     <>
-                    //       <tr>
-                    //         <td><img width={100} height={100} src={entry.thumbnail}></img></td>
-                    //         <td>{entry.name}</td>
-                    //         <td>{entry.price}</td>
-                    //         <td><input defaultValue={2} type="number"></input></td>
-                    //       </tr>
-                    //     </>
-                    //   );
+                    data.map((entry) => {
+                      return (
+                        <>
+                          <tr>
+                            <td><img width={100} height={100} src={entry.thumbnail}></img></td>
+                            <td>{entry.name}</td>
+                            <td>{entry.price}</td>
+                            <td><input defaultValue={entry.counter} type="number"></input></td>
+                          </tr>
+                        </>
+                      );
 
-                    // })
+                    })
                   }
                   <tr>
 
