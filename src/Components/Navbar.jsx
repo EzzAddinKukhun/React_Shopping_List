@@ -3,17 +3,36 @@ import { CounterContext } from './CounterContext';
 
 export default function Navbar() {
   let [data, setData] = useState([]);
-  let [cartElements, setCartElements] = useState([]); 
+  let [cartElements, setCartElements] = useState([]);
   let { count } = useContext(CounterContext);
+  let [totalPrice, setTotalPrice] = useState(0);
 
-  useEffect(() => {
-    let localStorageString = localStorage.getItem('cart');
-    let localStorageParsed = JSON.parse(localStorageString);
-    setData(localStorageParsed)
 
-  }, [])
 
-  
+
+
+  function calculateTotalPrice(data) {
+
+    let price = 0;
+    for (let i = 0; i < data.length; i++) {
+      price += data[i].counter * data[i].price;
+    }
+    setTotalPrice(price);
+  }
+
+
+  function addToBill(addition) {
+    totalPrice = totalPrice + addition
+    setTotalPrice(totalPrice)
+  }
+
+  function subFromBill(addition) {
+    totalPrice = totalPrice - addition
+    setTotalPrice(totalPrice)
+  }
+
+
+
   return (
     <>
       <div className="not-boostrap-container">
@@ -62,6 +81,7 @@ export default function Navbar() {
               let localStorageString = localStorage.getItem('cart');
               let localStorageParsed = JSON.parse(localStorageString);
               setData(localStorageParsed)
+              calculateTotalPrice(localStorageParsed);
 
             }} data-bs-toggle="modal" data-bs-target="#exampleModal">
               <i class="fa-solid fa-cart-shopping"></i>
@@ -96,14 +116,30 @@ export default function Navbar() {
                 </thead>
                 <tbody>
                   {
-                    data.map((entry) => {
+                    data.map((entry, key) => {
                       return (
                         <>
                           <tr>
                             <td><img width={100} height={100} src={entry.thumbnail}></img></td>
                             <td>{entry.name}</td>
                             <td>{entry.price}</td>
-                            <td><input defaultValue={entry.counter} type="number"></input></td>
+                            <td><input min={1} max={9} onChange={(e) => {
+                              console.log(e)
+
+                              if (entry.counter > e.target.value) {
+                              
+                                entry.counter = e.target.value;
+                                subFromBill(entry.price); 
+
+                              }
+                              else if (entry.counter < e.target.value){
+                              
+                                entry.counter = e.target.value;
+                                addToBill(entry.price)
+    
+                              }
+
+                            }} defaultValue={entry.counter} type="number"></input></td>
                           </tr>
                         </>
                       );
@@ -118,6 +154,9 @@ export default function Navbar() {
               </table>
             </div>
             <div class="modal-footer">
+              <div className='me-auto'>
+                <h3>Price: {totalPrice}$</h3>
+              </div>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
               <button type="button" class="btn btn-primary">Save changes</button>
             </div>

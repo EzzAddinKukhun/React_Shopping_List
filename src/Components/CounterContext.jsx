@@ -11,7 +11,6 @@ export function CounterContextProvider (props){
         data.map((element, key)=>{
             counter += data[key].counter
         })
-        console.log(data.length)
         setCount (counter); 
     }
 
