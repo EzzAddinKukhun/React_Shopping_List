@@ -3,13 +3,16 @@ import './App.css';
 import Header from './Components/Header';
 import Products from './Components/Products';
 import Navbar from './Components/Navbar';
+import { CounterContextProvider } from './Components/CounterContext';
 
 function App() {
   return (
     <>
-      <Navbar />
-      <Header />
-      <Products />
+      <CounterContextProvider>
+        <Navbar />
+        <Header />
+        <Products />
+      </CounterContextProvider>
     </>
   );
 }
