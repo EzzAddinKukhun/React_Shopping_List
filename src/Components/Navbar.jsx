@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
+import Swal from 'sweetalert2';
 import { CounterContext } from './CounterContext';
 
 export default function Navbar() {
@@ -6,6 +7,8 @@ export default function Navbar() {
   let [cartElements, setCartElements] = useState([]);
   let { count } = useContext(CounterContext);
   let [totalPrice, setTotalPrice] = useState(0);
+  let [checkout, setCheckout] = useState(false);
+  let [statusInput, setStatusInput] = useState('nothing');
 
 
 
@@ -99,83 +102,172 @@ export default function Navbar() {
 
       <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Image</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">count</th>
-                    <th scope="col">Remove</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    data.map((entry, key) => {
-                      return (
-                        <>
-                          <tr>
-                            <td><img width={100} height={100} src={entry.thumbnail}></img></td>
-                            <td>{entry.name}</td>
-                            <td>{entry.price}</td>
-                            <td><input min={1} max={9} onChange={(e) => {
-                              console.log(e)
+          {
+            checkout == true ?
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Checkout</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <form onSubmit={async (e)=>{
+                    e.preventDefault(); 
+                    setStatusInput('submit')
 
-                              if (entry.counter > e.target.value) {
-                              
-                                entry.counter = e.target.value;
-                                subFromBill(entry.price); 
+                    await new Promise ((res,rej)=>{
+                      setTimeout(()=>{
+                        res(`Thanks ${document.getElementById('username').value}, We Will message you on ${document.getElementById('email').value}`)
+                      },5000)
+                    }).then((res)=>{
+                      Swal.fire('Good Job!', res, 'success')
+                      setStatusInput('nothing'); 
+                      setTimeout(()=>{
+                        window.location.reload(); 
 
-                              }
-                              else if (entry.counter < e.target.value){
-                              
-                                entry.counter = e.target.value;
-                                addToBill(entry.price)
-    
-                              }
-
-                            }} defaultValue={entry.counter} type="number"></input></td>
-                            <td><button
-                            onClick={()=>{
-                              let newData = data.filter(element=>
-                                element.name !== entry.name
-                              )
-                              setData(
-                              newData
-                              )
-                              calculateTotalPrice(newData)
-                            
-                            }}
-                            type="button" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button></td>
-                          </tr>
-                        </>
-                      );
-
+                      },2500)
                     })
-                  }
-                  <tr>
+                  }}>
+                    <div class="mb-3">
+                      <label for="exampleInputEmail1" class="form-label">Full Name</label>
+                      <input disabled={statusInput == 'submit'} type="text" class="form-control" id="username" aria-describedby="emailHelp" />
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputEmail1" class="form-label">Email address</label>
+                      <input disabled={statusInput == 'submit'} type="email" class="form-control" id="email" aria-describedby="emailHelp" />
+                    </div>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Image</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Price</th>
+                          <th scope="col">count</th>
+                          <th scope="col">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          data.map((entry, key) => {
+                            return (
+                              <>
+                                <tr>
+                                  <td><img width={100} height={100} src={entry.thumbnail}></img></td>
+                                  <td>{entry.name}</td>
+                                  <td>{entry.price}</td>
+                                  <td>{entry.counter}</td>
+                                  <td>{entry.counter * entry.price}</td>
 
-                  </tr>
+                                </tr>
+                              </>
+                            );
 
-                </tbody>
-              </table>
-            </div>
-            <div class="modal-footer">
-              <div className='me-auto'>
-                <h3>Price: {totalPrice}$</h3>
+                          })
+                        }
+                        <tr>
+                        </tr>
+
+
+
+                      </tbody>
+                    </table>
+                    <div className='d-flex justify-content-end'>
+                      <button disabled={statusInput == 'submit'} type='submit' className='btn btn-primary'>Submit</button>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <div className='me-auto'>
+                    <h3>Price: {totalPrice}$</h3>
+                  </div>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onClick={() => {
+                    setCheckout(false)
+                  }} >Cart</button>
+                </div>
+              </div> :
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Cart</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Image</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">count</th>
+                        <th scope="col">Remove</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        data.map((entry, key) => {
+                          return (
+                            <>
+                              <tr>
+                                <td><img width={100} height={100} src={entry.thumbnail}></img></td>
+                                <td>{entry.name}</td>
+                                <td>{entry.price}</td>
+                                <td><input min={1} max={9} onChange={(e) => {
+                                  console.log(e)
+
+                                  if (entry.counter > e.target.value) {
+
+                                    entry.counter = e.target.value;
+                                    subFromBill(entry.price);
+
+                                  }
+                                  else if (entry.counter < e.target.value) {
+
+                                    entry.counter = e.target.value;
+                                    addToBill(entry.price)
+
+                                  }
+
+                                }} defaultValue={entry.counter} type="number"></input></td>
+                                <td><button
+                                  onClick={() => {
+                                    let newData = data.filter(element =>
+                                      element.name !== entry.name
+                                    )
+                                    setData(newData)
+                                    calculateTotalPrice(newData)
+
+                                  }}
+                                  type="button" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button></td>
+                              </tr>
+                            </>
+                          );
+
+                        })
+                      }
+                      <tr>
+
+                      </tr>
+
+                    </tbody>
+                  </table>
+                </div>
+                <div class="modal-footer">
+                  <div className='me-auto'>
+                    <h3>Price: {totalPrice}$</h3>
+                  </div>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary"
+                    onClick={() => {
+                      setCheckout(true)
+                    }}
+                  >Checkout</button>
+                </div>
               </div>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-          </div>
+          }
+
         </div>
       </div>
+
+
 
     </>
   )
